@@ -8,6 +8,8 @@ export interface Movie {
   type: 'movie' | 'series';
   uploadDate: string;
   releaseDate: string;
+  rating: string; // Dummy IMDB rating
+  seasons?: number[]; // For series
 }
 
 export const popularMovies: Movie[] = [
@@ -22,6 +24,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-01-01',
     releaseDate: '1999-03-31',
+    rating: '8.7',
   },
   {
     id: 2,
@@ -29,11 +32,12 @@ export const popularMovies: Movie[] = [
     description:
       'A thief steals corporate secrets through dream-sharing technology.',
     image: 'https://via.placeholder.com/150',
-    quality: 'Full HD',
+    quality: 'HD',
     cast: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page'],
     type: 'movie',
     uploadDate: '2022-02-01',
     releaseDate: '2010-07-16',
+    rating: '8.8',
   },
   {
     id: 3,
@@ -45,6 +49,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-03-01',
     releaseDate: '2014-11-07',
+    rating: '8.8',
   },
   {
     id: 4,
@@ -56,6 +61,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-04-01',
     releaseDate: '2008-07-18',
+    rating: '8.8',
   },
   {
     id: 5,
@@ -68,6 +74,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-05-01',
     releaseDate: '1994-10-14',
+    rating: '8.8',
   },
   {
     id: 6,
@@ -80,6 +87,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-06-01',
     releaseDate: '1994-07-06',
+    rating: '8.8',
   },
   {
     id: 7,
@@ -91,6 +99,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-07-01',
     releaseDate: '2000-05-05',
+    rating: '8.8',
   },
   {
     id: 8,
@@ -103,6 +112,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-08-01',
     releaseDate: '1997-12-19',
+    rating: '8.8',
   },
   {
     id: 9,
@@ -115,6 +125,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-09-01',
     releaseDate: '2009-12-18',
+    rating: '8.8',
   },
   {
     id: 10,
@@ -127,6 +138,7 @@ export const popularMovies: Movie[] = [
     type: 'movie',
     uploadDate: '2022-10-01',
     releaseDate: '2001-12-19',
+    rating: '8.8',
   },
   // 5 Popular Series
   {
@@ -139,6 +151,8 @@ export const popularMovies: Movie[] = [
     type: 'series',
     uploadDate: '2022-11-01',
     releaseDate: '2008-01-20',
+    seasons: [1, 2, 3, 4, 5],
+    rating: '8.8',
   },
   {
     id: 12,
@@ -150,6 +164,8 @@ export const popularMovies: Movie[] = [
     type: 'series',
     uploadDate: '2022-12-01',
     releaseDate: '2011-04-17',
+    seasons: [1, 2, 3, 4, 5],
+    rating: '8.8',
   },
   {
     id: 13,
@@ -162,6 +178,7 @@ export const popularMovies: Movie[] = [
     type: 'series',
     uploadDate: '2023-01-01',
     releaseDate: '2016-07-15',
+    rating: '8.8',
   },
   {
     id: 14,
@@ -174,6 +191,7 @@ export const popularMovies: Movie[] = [
     type: 'series',
     uploadDate: '2023-02-01',
     releaseDate: '2016-11-04',
+    rating: '8.8',
   },
   {
     id: 15,
@@ -185,5 +203,6 @@ export const popularMovies: Movie[] = [
     type: 'series',
     uploadDate: '2023-03-01',
     releaseDate: '2019-11-12',
+    rating: '8.8',
   },
 ];

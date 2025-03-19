@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Movie } from '../constants/movies';
 
 interface SearchBarProps {
@@ -7,8 +8,9 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ movies }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
-  // Only filter if query length >= 3 and slice to 20 suggestions maximum
+  // Only filter if query length >= 3 and limit to 20 suggestions
   const filteredMovies =
     searchQuery.length >= 3
       ? movies
@@ -51,6 +53,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ movies }) => {
                 <li
                   key={movie.id}
                   className="p-3 hover:bg-gray-700 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/movie/${movie.id}`);
+                  }}
                 >
                   <div className="flex items-center space-x-3">
                     <img
@@ -60,7 +65,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ movies }) => {
                     />
                     <div>
                       <p className="font-medium">{movie.title}</p>
-                      <p className="text-xs text-gray-400">{movie.quality}</p>
+                      <p className="text-xs text-gray-400">
+                        {movie.quality === 'Full HD' ? 'UHD' : movie.quality}
+                      </p>
                     </div>
                   </div>
                 </li>

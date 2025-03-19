@@ -1,40 +1,80 @@
-import React, { useState, useMemo } from 'react';
-import { popularMovies, Movie } from '../constants/movies';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const ITEMS_PER_PAGE = 20;
 
+interface Movie {
+  _id: string;
+  title: string;
+  image: string;
+  quality: string;
+  type: 'movie' | 'series';
+  uploadDate: string;
+  releaseDate: string;
+  // Add additional fields as needed…
+}
+
 const BrowseAllPage: React.FC = () => {
-  // Default category set to 'all'
-  const [category, setCategory] = useState<'all' | 'movie' | 'series'>('all');
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Get the category from the query parameter
+  const paramCat = searchParams.get('cat') as 'movie' | 'series' | null;
+  const initialCat = paramCat ? paramCat : 'all';
+  const [category, setCategory] = useState<'all' | 'movie' | 'series'>(
+    initialCat
+  );
   const [sortBy, setSortBy] = useState<'uploadDate' | 'releaseDate'>(
     'uploadDate'
   );
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-  // Filter and sort items
-  const filteredItems = useMemo(() => {
-    let items = popularMovies;
-    if (category !== 'all') {
-      items = items.filter((item) => item.type === category);
-    }
-    items = items.sort((a, b) => {
-      const dateA = new Date(a[sortBy]).getTime();
-      const dateB = new Date(b[sortBy]).getTime();
-      return order === 'asc' ? dateA - dateB : dateB - dateA;
-    });
-    return items;
-  }, [category, sortBy, order]);
+  // Update category state when query parameter changes
+  useEffect(() => {
+    const newCat = searchParams.get('cat') as 'movie' | 'series' | null;
+    setCategory(newCat ? newCat : 'all');
+  }, [searchParams]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // Fetch movies from DB whenever filters or page changes
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        // Build query string
+        const queryParams = new URLSearchParams({
+          page: currentPage.toString(),
+          limit: ITEMS_PER_PAGE.toString(),
+          sortBy,
+          order,
+        });
+        if (category !== 'all') {
+          queryParams.append('cat', category);
+        }
+        const response = await fetch(
+          `${backendUrl}/api/movies?${queryParams.toString()}`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch movies');
+        }
+        const data = await response.json();
+        setMovies(data.movies);
+        setTotalCount(data.totalCount);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
+    fetchMovies();
+  }, [category, sortBy, order, currentPage]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  // Pagination Handlers
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
@@ -47,10 +87,10 @@ const BrowseAllPage: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <Navbar />
 
-      {/* Responsive Header */}
+      {/* Responsive Header with Filter Options */}
       <div className="bg-gray-800 p-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-          {/* Toggle Buttons: Order is All, Movies, Series */}
+          {/* Category Toggle Buttons */}
           <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
             {(['all', 'movie', 'series'] as const).map((cat) => (
               <button
@@ -109,14 +149,14 @@ const BrowseAllPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of Items */}
+      {/* Movies Grid */}
       <main className="flex-grow container mx-auto p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {paginatedItems.map((item: Movie) => (
+          {movies.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="bg-gray-800 p-4 rounded shadow cursor-pointer hover:bg-gray-700"
-              onClick={() => console.log('Clicked movie:', item.title)}
+              onClick={() => navigate(`/movie/${item._id}`)}
             >
               <img
                 src={item.image}

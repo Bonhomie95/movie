@@ -291,7 +291,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {/* Settings Panel */}
       {controlsVisible && isSettingsOpen && (
         <div
-          className="absolute bottom-16 right-4 bg-gray-800 bg-opacity-90 p-2 rounded space-y-2"
+          className=" absolute bottom-16 right-4 bg-gray-800 bg-opacity-90 p-2 rounded space-y-2"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex space-x-2">
@@ -386,7 +386,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         >
           <button
             onClick={togglePlayPause}
-            className="bg-black bg-opacity-50 p-3 rounded-full"
+            className="cursor-pointer bg-black bg-opacity-50 p-3 rounded-full"
           >
             {isPlaying ? (
               <svg
@@ -414,8 +414,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {/* Bottom Controls Section */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-full px-4 flex items-center">
         {/* Left Group: Prev/Next 10s Buttons */}
-        <div className="flex-shrink-0 flex items-center space-x-2">
-          <button onClick={handlePrev10} className="text-white">
+        <div className=" flex-shrink-0 flex items-center space-x-2">
+          <button onClick={handlePrev10} className="cursor-pointer text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 md:h-6 md:w-6"
@@ -431,7 +431,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               />
             </svg>
           </button>
-          <button onClick={handleNext10} className="text-white">
+          <button onClick={handleNext10} className="cursor-pointer text-white">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5 md:h-6 md:w-6"
@@ -484,7 +484,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 // Close other menus if needed
                 setPlaybackMenuOpen(false);
               }}
-              className="bg-gray-800 bg-opacity-70 p-2 rounded-full"
+              className="cursor-pointer bg-gray-800 bg-opacity-70 p-2 rounded-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -531,7 +531,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 // Close other menus if needed
                 setSubtitleMenuOpen(false);
               }}
-              className="bg-gray-800 bg-opacity-70 p-2 rounded-full"
+              className="cursor-pointer bg-gray-800 bg-opacity-70 p-2 rounded-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -566,7 +566,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div className="relative inline-block">
             <button
               onClick={toggleVolumePanel}
-              className="bg-gray-800 bg-opacity-70 p-2 rounded-full"
+              className="cursor-pointer bg-gray-800 bg-opacity-70 p-2 rounded-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -601,7 +601,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div className="relative inline-block">
             <button
               onClick={toggleBrightnessPanel}
-              className="bg-gray-800 bg-opacity-70 p-2 rounded-full"
+              className="cursor-pointer bg-gray-800 bg-opacity-70 p-2 rounded-full"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -634,7 +634,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           {/* Fullscreen Icon */}
           <button
             onClick={toggleFullScreen}
-            className="bg-gray-800 bg-opacity-70 p-2 rounded-full"
+            className="cursor-pointer bg-gray-800 bg-opacity-70 p-2 rounded-full"
           >
             {isFullScreen ? (
               <svg

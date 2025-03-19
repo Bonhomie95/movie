@@ -88,13 +88,13 @@ const AdminSearchPage: React.FC = () => {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleModify(movie._id)}
-                    className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+                    className="cursor-pointer px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
                   >
                     Modify
                   </button>
                   <button
                     onClick={() => handleDelete(movie._id)}
-                    className="px-4 py-2 bg-red-600 rounded hover:bg-red-700"
+                    className="cursor-pointer px-4 py-2 bg-red-600 rounded hover:bg-red-700"
                   >
                     Delete
                   </button>

@@ -32,7 +32,8 @@ interface Movie {
 const AdminEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   // States for movie fields (pre-populated)
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,9 @@ const AdminEditPage: React.FC = () => {
   const [title, setTitle] = useState('');
   const [type, setType] = useState<'movie' | 'series'>('movie');
   const [image, setImage] = useState('');
-  const [movieLinks, setMovieLinks] = useState<MovieLink[]>([{ link: '', source: '' }]);
+  const [movieLinks, setMovieLinks] = useState<MovieLink[]>([
+    { link: '', source: '' },
+  ]);
   const [genre, setGenre] = useState('');
   const [cast, setCast] = useState('');
   const [description, setDescription] = useState('');
@@ -50,7 +53,9 @@ const AdminEditPage: React.FC = () => {
   const [quality, setQuality] = useState('HD');
   const [duration, setDuration] = useState('');
   const [director, setDirector] = useState('');
-  const [subtitles, setSubtitles] = useState<Subtitle[]>([{ link: '', language: 'English' }]);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([
+    { link: '', language: 'English' },
+  ]);
 
   // Fetch movie details from DB on mount
   useEffect(() => {
@@ -88,7 +93,11 @@ const AdminEditPage: React.FC = () => {
   }, [id, backendUrl]);
 
   // Handlers for movie links
-  const handleMovieLinkChange = (index: number, field: 'link' | 'source', value: string) => {
+  const handleMovieLinkChange = (
+    index: number,
+    field: 'link' | 'source',
+    value: string
+  ) => {
     const newLinks = [...movieLinks];
     newLinks[index][field] = value;
     setMovieLinks(newLinks);
@@ -105,7 +114,11 @@ const AdminEditPage: React.FC = () => {
   };
 
   // Handlers for subtitles
-  const handleSubtitleChange = (index: number, field: 'link' | 'language', value: string) => {
+  const handleSubtitleChange = (
+    index: number,
+    field: 'link' | 'language',
+    value: string
+  ) => {
     const newSubtitles = [...subtitles];
     newSubtitles[index][field] = value;
     setSubtitles(newSubtitles);
@@ -153,7 +166,7 @@ const AdminEditPage: React.FC = () => {
       });
       if (res.ok) {
         alert('Movie updated successfully!');
-        navigate(`/movie/${id}`);
+        navigate('/admin/dashboard/search');
       } else {
         alert('Failed to update movie');
       }
@@ -215,7 +228,9 @@ const AdminEditPage: React.FC = () => {
                 placeholder="Movie Link"
                 className="w-1/2 p-2 rounded bg-gray-700 border text-white"
                 value={item.link}
-                onChange={(e) => handleMovieLinkChange(index, 'link', e.target.value)}
+                onChange={(e) =>
+                  handleMovieLinkChange(index, 'link', e.target.value)
+                }
                 required
               />
               <input
@@ -223,7 +238,9 @@ const AdminEditPage: React.FC = () => {
                 placeholder="Source (e.g. Mega, Drive...)"
                 className="w-1/2 p-2 rounded bg-gray-700 border text-white"
                 value={item.source}
-                onChange={(e) => handleMovieLinkChange(index, 'source', e.target.value)}
+                onChange={(e) =>
+                  handleMovieLinkChange(index, 'source', e.target.value)
+                }
                 required
               />
               {movieLinks.length > 1 && (
@@ -329,7 +346,9 @@ const AdminEditPage: React.FC = () => {
         </div>
         {/* Director */}
         <div>
-          <label className="block font-semibold">Director (comma separated)</label>
+          <label className="block font-semibold">
+            Director (comma separated)
+          </label>
           <input
             type="text"
             className="w-full p-2 rounded border"
@@ -348,20 +367,26 @@ const AdminEditPage: React.FC = () => {
                 placeholder="Subtitle Link"
                 className="w-1/2 p-2 rounded bg-gray-700 border text-white"
                 value={item.link}
-                onChange={(e) => handleSubtitleChange(index, 'link', e.target.value)}
+                onChange={(e) =>
+                  handleSubtitleChange(index, 'link', e.target.value)
+                }
                 required
               />
               <select
                 className="w-1/2 p-2 rounded bg-gray-700 border text-white"
                 value={item.language}
-                onChange={(e) => handleSubtitleChange(index, 'language', e.target.value)}
+                onChange={(e) =>
+                  handleSubtitleChange(index, 'language', e.target.value)
+                }
                 required
               >
-                {['English', 'Spanish', 'Italian', 'French', 'Portuguese'].map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang}
-                  </option>
-                ))}
+                {['English', 'Spanish', 'Italian', 'French', 'Portuguese'].map(
+                  (lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  )
+                )}
               </select>
               {subtitles.length > 1 && (
                 <button
@@ -377,12 +402,15 @@ const AdminEditPage: React.FC = () => {
           <button
             type="button"
             onClick={handleAddSubtitle}
-            className="mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+            className="cursor-pointer mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
           >
             Add More Subtitles
           </button>
         </div>
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        <button
+          type="submit"
+          className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
           Update Movie
         </button>
       </form>

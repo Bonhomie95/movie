@@ -18,6 +18,8 @@ router.post('/', async (req, res) => {
       quality,
       duration,
       director,
+      subtitles,
+      type,
     } = req.body;
 
     // Basic validation (expand as needed)
@@ -37,6 +39,8 @@ router.post('/', async (req, res) => {
       quality,
       duration,
       director,
+      subtitles,
+      type,
     });
 
     const savedMovie = await newMovie.save();
@@ -62,34 +66,64 @@ router.get('/search', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch movies' });
   }
 });
-
-// GET /api/movies?page=&limit=&sortBy=&order=&cat=
+// GET /api/movies with pagination and filtering (if needed)
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // Parse query parameters
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const sortBy =
       req.query.sortBy === 'releaseDate' ? 'releaseDate' : 'uploadDate';
     const order = req.query.order === 'asc' ? 1 : -1;
     const cat = req.query.cat as string | undefined;
-
     const filter: any = {};
     if (cat && (cat === 'movie' || cat === 'series')) {
-      // Assuming your movie documents have a "type" field.
       filter.type = cat;
     }
-
     const totalCount = await Movie.countDocuments(filter);
     const movies = await Movie.find(filter)
       .sort({ [sortBy]: order })
       .skip((page - 1) * limit)
       .limit(limit);
-
     res.json({ movies, totalCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch movies' });
+  }
+});
+
+// PUT /api/movies/:id – Update a movie
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const updatedMovie = await Movie.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedMovie) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+    res.json(updatedMovie);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to update movie' });
+  }
+});
+
+// GET /api/movies/suggestions?exclude=<movieId>&limit=10
+router.get('/suggestions', async (req: Request, res: Response) => {
+  try {
+    const { exclude, limit } = req.query;
+    const query: any = {};
+    if (exclude && typeof exclude === 'string') {
+      query._id = { $ne: exclude }; // Exclude this movie
+    }
+    const movies = await Movie.find(query).limit(
+      parseInt(limit as string) || 10
+    );
+    res.json(movies);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch suggestions' });
   }
 });
 

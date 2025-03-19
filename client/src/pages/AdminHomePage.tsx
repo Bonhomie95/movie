@@ -1,10 +1,35 @@
 import React, { useState } from 'react';
 
+interface MovieLink {
+  link: string;
+  source: string;
+}
+
+interface Subtitle {
+  link: string;
+  language: string;
+}
+
+interface Episode {
+  episodeNumber: number;
+  title: string;
+  videoLinks: { link: string }[];
+  duration: number;
+}
+
+interface Season {
+  seasonNumber: number;
+  episodes: Episode[];
+}
+
 const AdminHomePage: React.FC = () => {
+  // Common movie fields
   const [title, setTitle] = useState('');
-  const [type, setType] = useState<'movie' | 'series'>('movie'); // New field for type
+  const [type, setType] = useState<'movie' | 'series'>('movie');
   const [image, setImage] = useState('');
-  const [movieLinks, setMovieLinks] = useState([{ link: '', source: '' }]);
+  const [movieLinks, setMovieLinks] = useState<MovieLink[]>([
+    { link: '', source: '' },
+  ]);
   const [genre, setGenre] = useState('');
   const [cast, setCast] = useState('');
   const [description, setDescription] = useState('');
@@ -13,16 +38,30 @@ const AdminHomePage: React.FC = () => {
   const [quality, setQuality] = useState('HD');
   const [duration, setDuration] = useState('');
   const [director, setDirector] = useState('');
-  const [subtitles, setSubtitles] = useState([
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([
     { link: '', language: 'English' },
   ]);
-  const backendUrl =
-    import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-  // Handlers for movie links
+  // New state for series – seasons & episodes
+  const [seasons, setSeasons] = useState<Season[]>([
+    {
+      seasonNumber: 1,
+      episodes: [
+        {
+          episodeNumber: 1,
+          title: '',
+          videoLinks: [{ link: '' }],
+          duration: 0,
+        },
+      ],
+    },
+  ]);
+
+  // --- Helper functions for movieLinks (unchanged) ---
   const handleAddMovieLink = () => {
     setMovieLinks([...movieLinks, { link: '', source: '' }]);
   };
+
   const handleMovieLinkChange = (
     index: number,
     field: 'link' | 'source',
@@ -32,13 +71,14 @@ const AdminHomePage: React.FC = () => {
     newLinks[index][field] = value;
     setMovieLinks(newLinks);
   };
+
   const handleRemoveMovieLink = (index: number) => {
     const newLinks = [...movieLinks];
     newLinks.splice(index, 1);
     setMovieLinks(newLinks);
   };
 
-  // Handlers for subtitles
+  // --- Helper functions for subtitles (unchanged) ---
   const handleSubtitleChange = (
     index: number,
     field: 'link' | 'language',
@@ -48,38 +88,114 @@ const AdminHomePage: React.FC = () => {
     newSubtitles[index][field] = value;
     setSubtitles(newSubtitles);
   };
+
   const handleAddSubtitle = () => {
     setSubtitles([...subtitles, { link: '', language: 'English' }]);
   };
+
   const handleRemoveSubtitle = (index: number) => {
     const newSubtitles = [...subtitles];
     newSubtitles.splice(index, 1);
     setSubtitles(newSubtitles);
   };
 
+  // --- Helper functions for series (seasons & episodes) ---
+  const addSeason = () => {
+    const newSeasonNumber = seasons.length + 1;
+    const newSeason: Season = { seasonNumber: newSeasonNumber, episodes: [] };
+    setSeasons([...seasons, newSeason]);
+  };
+
+  const removeSeason = (index: number) => {
+    const newSeasons = [...seasons];
+    newSeasons.splice(index, 1);
+    setSeasons(newSeasons);
+  };
+
+  const handleSeasonChange = (
+    index: number,
+    field: 'seasonNumber',
+    value: string
+  ) => {
+    const newSeasons = [...seasons];
+    newSeasons[index][field] = parseInt(value);
+    setSeasons(newSeasons);
+  };
+
+  const addEpisode = (seasonIndex: number) => {
+    const newEpisodeNumber = seasons[seasonIndex].episodes.length + 1;
+    const newEpisode: Episode = {
+      episodeNumber: newEpisodeNumber,
+      title: '',
+      videoLinks: [{ link: '' }],
+      duration: 0,
+    };
+    const newSeasons = [...seasons];
+    newSeasons[seasonIndex].episodes.push(newEpisode);
+    setSeasons(newSeasons);
+  };
+
+  const removeEpisode = (seasonIndex: number, episodeIndex: number) => {
+    const newSeasons = [...seasons];
+    newSeasons[seasonIndex].episodes.splice(episodeIndex, 1);
+    setSeasons(newSeasons);
+  };
+
+  const handleEpisodeChange = (
+    seasonIndex: number,
+    episodeIndex: number,
+    field: 'episodeNumber' | 'title' | 'duration',
+    value: string
+  ) => {
+    const newSeasons = [...seasons];
+    if (field === 'episodeNumber' || field === 'duration') {
+      newSeasons[seasonIndex].episodes[episodeIndex][field] = parseInt(value);
+    } else {
+      newSeasons[seasonIndex].episodes[episodeIndex][field] = value;
+    }
+    setSeasons(newSeasons);
+  };
+
+  const handleEpisodeLinkChange = (
+    seasonIndex: number,
+    episodeIndex: number,
+    linkIndex: number,
+    field: 'link',
+    value: string
+  ) => {
+    const newSeasons = [...seasons];
+    newSeasons[seasonIndex].episodes[episodeIndex].videoLinks[linkIndex][
+      field
+    ] = value;
+    setSeasons(newSeasons);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const castArray = cast.split(',').map((s) => s.trim());
+    // Convert comma-separated fields into arrays
     const genreArray = genre.split(',').map((s) => s.trim());
+    const castArray = cast.split(',').map((s) => s.trim());
     const directorArray = director.split(',').map((s) => s.trim());
+
     const newMovie = {
       title,
-      type, // Include the type field
+      type,
       image,
-      movieLinks,
+      movieLinks: type === 'movie' ? movieLinks : [],
       genre: genreArray,
       cast: castArray,
       description,
       imdbRating: Number(imdbRating),
       releaseDate,
       quality,
-      duration: Number(duration),
+      duration: type === 'movie' ? Number(duration) : 0,
       director: directorArray,
       subtitles,
+      seasons: type === 'series' ? seasons : [],
     };
 
     try {
-      const response = await fetch(`${backendUrl}/api/movies`, {
+      const response = await fetch('http://localhost:5000/api/movies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMovie),
@@ -100,6 +216,19 @@ const AdminHomePage: React.FC = () => {
         setDuration('');
         setDirector('');
         setSubtitles([{ link: '', language: 'English' }]);
+        setSeasons([
+          {
+            seasonNumber: 1,
+            episodes: [
+              {
+                episodeNumber: 1,
+                title: '',
+                videoLinks: [{ link: '' }],
+                duration: 0,
+              },
+            ],
+          },
+        ]);
       } else {
         alert('Failed to upload movie');
       }
@@ -111,9 +240,9 @@ const AdminHomePage: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-100 text-gray-900 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Upload New Movie</h2>
+      <h2 className="text-2xl font-bold mb-4">Upload New Movie / Series</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
+        {/* Common Fields */}
         <div>
           <label className="block font-semibold">Title</label>
           <input
@@ -124,7 +253,6 @@ const AdminHomePage: React.FC = () => {
             required
           />
         </div>
-        {/* Type: Movie or Series */}
         <div>
           <label className="block font-semibold">Type</label>
           <select
@@ -137,7 +265,6 @@ const AdminHomePage: React.FC = () => {
             <option value="series">Series</option>
           </select>
         </div>
-        {/* Image URL */}
         <div>
           <label className="block font-semibold">Image URL</label>
           <input
@@ -148,50 +275,52 @@ const AdminHomePage: React.FC = () => {
             required
           />
         </div>
-        {/* Movie Links Section */}
-        <div>
-          <label className="block font-semibold">Movie Links (Sources)</label>
-          {movieLinks.map((item, index) => (
-            <div key={index} className="flex space-x-2 mb-2">
-              <input
-                type="text"
-                placeholder="Movie Link"
-                className="w-1/2 p-2 rounded bg-gray-700 border text-white"
-                value={item.link}
-                onChange={(e) =>
-                  handleMovieLinkChange(index, 'link', e.target.value)
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Source (e.g. Mega, Drive...)"
-                className="w-1/2 p-2 rounded bg-gray-700 border text-white"
-                value={item.source}
-                onChange={(e) =>
-                  handleMovieLinkChange(index, 'source', e.target.value)
-                }
-                required
-              />
-              {movieLinks.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveMovieLink(index)}
-                  className="bg-red-600 px-2 rounded hover:bg-red-700"
-                >
-                  X
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddMovieLink}
-            className="mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
-          >
-            Add More Links
-          </button>
-        </div>
+        {/* Movie Links Section – for movies only */}
+        {type === 'movie' && (
+          <div>
+            <label className="block font-semibold">Movie Links (Sources)</label>
+            {movieLinks.map((item, index) => (
+              <div key={index} className="flex space-x-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Movie Link"
+                  className="w-1/2 p-2 rounded bg-gray-700 border text-white"
+                  value={item.link}
+                  onChange={(e) =>
+                    handleMovieLinkChange(index, 'link', e.target.value)
+                  }
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Source (e.g. Mega, Drive...)"
+                  className="w-1/2 p-2 rounded bg-gray-700 border text-white"
+                  value={item.source}
+                  onChange={(e) =>
+                    handleMovieLinkChange(index, 'source', e.target.value)
+                  }
+                  required
+                />
+                {movieLinks.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMovieLink(index)}
+                    className="bg-red-600 px-2 rounded hover:bg-red-700"
+                  >
+                    X
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddMovieLink}
+              className="cursor-pointer mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+            >
+              Add More Links
+            </button>
+          </div>
+        )}
         {/* Genre */}
         <div>
           <label className="block font-semibold">Genre (comma separated)</label>
@@ -262,18 +391,20 @@ const AdminHomePage: React.FC = () => {
             <option value="UHD">UHD</option>
           </select>
         </div>
-        {/* Duration */}
-        <div>
-          <label className="block font-semibold">Duration (in minutes)</label>
-          <input
-            type="text"
-            className="w-full p-2 rounded border"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            placeholder="e.g., 150"
-            required
-          />
-        </div>
+        {/* Duration – for movies only */}
+        {type === 'movie' && (
+          <div>
+            <label className="block font-semibold">Duration (in minutes)</label>
+            <input
+              type="text"
+              className="w-full p-2 rounded border"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              placeholder="e.g., 150"
+              required
+            />
+          </div>
+        )}
         {/* Director */}
         <div>
           <label className="block font-semibold">
@@ -332,14 +463,136 @@ const AdminHomePage: React.FC = () => {
           <button
             type="button"
             onClick={handleAddSubtitle}
-            className="mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+            className="cursor-pointer mt-2 bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
           >
             Add More Subtitles
           </button>
         </div>
+        {/* Series Section */}
+        {type === 'series' && (
+          <div className="mt-4">
+            <h3 className="font-bold mb-2">Seasons</h3>
+            {seasons.map((season, sIndex) => (
+              <div key={sIndex} className="mb-4 border p-2 rounded">
+                <div className="flex items-center space-x-2 mb-2">
+                  <label>Season Number:</label>
+                  <input
+                    type="number"
+                    value={season.seasonNumber}
+                    onChange={(e) =>
+                      handleSeasonChange(sIndex, 'seasonNumber', e.target.value)
+                    }
+                    className="p-2 rounded border"
+                  />
+                  {seasons.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeSeason(sIndex)}
+                      className="bg-red-600 px-2 rounded"
+                    >
+                      Remove Season
+                    </button>
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Episodes</h4>
+                  {season.episodes.map((episode, eIndex) => (
+                    <div
+                      key={eIndex}
+                      className="flex items-center space-x-2 mb-2"
+                    >
+                      <input
+                        type="number"
+                        placeholder="Episode Number"
+                        value={episode.episodeNumber}
+                        onChange={(e) =>
+                          handleEpisodeChange(
+                            sIndex,
+                            eIndex,
+                            'episodeNumber',
+                            e.target.value
+                          )
+                        }
+                        className="p-2 rounded border w-1/6"
+                        required
+                      />
+                      <input
+                        type="text"
+                        placeholder="Episode Title"
+                        value={episode.title}
+                        onChange={(e) =>
+                          handleEpisodeChange(
+                            sIndex,
+                            eIndex,
+                            'title',
+                            e.target.value
+                          )
+                        }
+                        className="p-2 rounded border w-1/3"
+                        required
+                      />
+                      <input
+                        type="text"
+                        placeholder="Episode Link"
+                        value={episode.videoLinks[0]?.link || ''}
+                        onChange={(e) =>
+                          handleEpisodeLinkChange(
+                            sIndex,
+                            eIndex,
+                            0,
+                            'link',
+                            e.target.value
+                          )
+                        }
+                        className="p-2 rounded border w-1/3"
+                        required
+                      />
+                      <input
+                        type="number"
+                        placeholder="Duration (min)"
+                        value={episode.duration}
+                        onChange={(e) =>
+                          handleEpisodeChange(
+                            sIndex,
+                            eIndex,
+                            'duration',
+                            e.target.value
+                          )
+                        }
+                        className="p-2 rounded border w-1/6"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeEpisode(sIndex, eIndex)}
+                        className="bg-red-600 px-2 rounded"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addEpisode(sIndex)}
+                    className="cursor-pointer bg-blue-600 px-3 py-1 rounded"
+                  >
+                    Add Episode
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSeason}
+              className="cursor-pointer bg-blue-600 px-3 py-1 rounded"
+            >
+              Add Season
+            </button>
+          </div>
+        )}
         <button
           type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="cursor-pointer bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
           Upload Movie
         </button>
